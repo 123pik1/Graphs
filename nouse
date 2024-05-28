@@ -1,0 +1,133 @@
+void Graph::countNmbOfCycle4()
+{
+    nmbOfCycle4 = 0;
+    for (int i = 0; i < n; i++)
+    {
+        DFSc4(i);
+    }
+    nmbOfCycle4 /= 32;
+}
+
+void Graph::recursiveDFSc4(int v, int prevVertex, int startVertex, int depth)
+{
+    // printf("v: %d   depth: %d\n\n", v, depth);
+    for (int i=0; i<vertices[v].vertexDegree; i++)
+    {
+       
+        if (depth == 4)
+        {
+            if (vertices[v].key == vertices[startVertex].key)
+            {
+                nmbOfCycle4++;
+                return;
+            }
+            
+        }
+        else
+        {
+            if (vertices[v].neighbours[i] != prevVertex)
+            {
+                recursiveDFSc4(vertices[v].neighbours[i] - 1, v, startVertex, depth + 1);
+            }
+        }
+    }
+}
+
+void Graph::DFSc4(int startVertex)
+{
+    int stackSize = n;
+    int *stack = (int *)malloc(sizeof(int) * stackSize);
+    int *prev = (int *)malloc(sizeof(int) * stackSize);
+    int *depth = (int *)malloc(sizeof(int) * stackSize);
+    int stackTop = 0;
+    stack[stackTop] = startVertex;
+    prev[stackTop] = -1;
+    depth[stackTop] = 0;
+    stackTop++;
+    while (stackTop != 0)
+    {
+        int currentVertex = stack[stackTop - 1];
+        int prevVertex = prev[stackTop - 1];
+        int currentDepth = depth[stackTop - 1];
+        // printf("v: %d   depth: %d stackTop: %d\n\n", currentVertex, currentDepth, stackTop);
+        if (currentDepth == 4)
+        {
+            if (vertices[currentVertex].key == vertices[startVertex].key)
+            {
+                nmbOfCycle4++;
+            }
+        }
+        else
+            for (int i = 0; i < vertices[currentVertex].vertexDegree; i++)
+            {
+                if (vertices[currentVertex].neighbours[i] != prevVertex)
+                {
+                    stack[stackTop - 1] = vertices[currentVertex].neighbours[i] - 1;
+                    prev[stackTop - 1] = currentVertex;
+                    depth[stackTop - 1] = currentDepth + 1;
+                    stackTop++;
+                }
+            }
+
+        stackTop--;
+    }
+    free(stack);
+    free(prev);
+    free(depth);
+}
+
+// void Graph::BFS(int v)
+// {
+//     vertices[v].visited = true;
+//     int* queue = (int*)malloc(sizeof(int)*n);
+//     int front = 0;
+//     int queueSize = 0;
+//     queue[0] = 1;
+//     queueSize++;
+//     while (queueSize !=0)
+//     {
+//         int currentVertex = queue[front];
+//         // printf("%d ", currentVertex);
+//         front++;
+//         queueSize--;
+//         for (int i = 0; i < vertices[currentVertex-1].vertexDegree; i++)
+//         {
+//             if (!vertices[vertices[currentVertex-1].neighbours[i]-1].visited)
+//             {
+//                 vertices[vertices[currentVertex-1].neighbours[i]-1].visited = true;
+//                 queueSize++;
+//                 queue[front+queueSize-1] = vertices[currentVertex-1].neighbours[i];
+//             }
+//         }
+//     }
+//     free(queue);
+// }
+
+
+
+void Graph::greedyColoring()
+{
+    for (int i=0; i<n; i++)
+    {
+        bool *colors = (bool*)malloc(sizeof(bool)*n);
+        for (int j=0; j<n; j++)
+        {
+            colors[j] = true;
+        }
+        for (int j=0; j<vertices[i].vertexDegree; j++)
+        {
+            colors[vertices[vertices[i].neighbours[j]-1].greedyColor-1] = false;
+        }
+        for (int j=0; j<n;j++)
+        {
+            if (colors[j]==true)
+            {
+                vertices[i].greedyColor = j+1;
+                break;
+            }
+        }     
+        free(colors);
+    }
+
+    
+}
